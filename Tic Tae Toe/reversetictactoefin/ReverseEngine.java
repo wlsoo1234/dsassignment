@@ -19,34 +19,13 @@ public class ReverseEngine {
     public int makeMove(char[] board, String difficulty) {
         List<Integer> emptyCells = getEmptyCells(board);
 
-        // Easy Difficulty: Random Move, Avoid Immediate Losing Move, Higher Probability of Random Move
-        if (difficulty.equals("easy")) {
-            // Check for an immediate losing move for the opponent
-            for (int cell : emptyCells) {
-                board[cell] = OPPONENT;
-                if (checkLoss(board, OPPONENT)) {
-                    board[cell] = ' ';
-                    continue;
-                }
-                board[cell] = ' ';
-                return cell;
-            }
-
-            // No immediate losing move found, choose a random move with higher probability
-            Random random = new Random();
-            int randomIndex = random.nextInt(emptyCells.size());
-
-            // Increase the chance of a random move by adding more random indexes
-            int totalIndexes = emptyCells.size();
-            if (totalIndexes > 1 && random.nextInt(10) < 8) {
-                // Generate another random index and choose the one with higher probability
-                int secondRandomIndex = random.nextInt(emptyCells.size());
-                randomIndex = random.nextInt(10) < 8 ? randomIndex : secondRandomIndex;
-            }
-
-            return emptyCells.get(randomIndex);
-        }
-
+      // Easy Difficulty: Random Move
+    if (difficulty.equals("easy")) {
+        // Choose a random move
+        Random random = new Random();
+        int randomIndex = random.nextInt(emptyCells.size());
+        return emptyCells.get(randomIndex);
+    }
         // Medium Difficulty: Random Move, Avoid Immediate Losing Move
         if (difficulty.equals("medium")) {
             // Check for an immediate losing move for the opponent
@@ -87,7 +66,6 @@ public class ReverseEngine {
 
         return -1;
     }
-
     private boolean checkLoss(char[] board, char player) {
         // Check rows
         for (int i = 0; i < 3; i++) {
