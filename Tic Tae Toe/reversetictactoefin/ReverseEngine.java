@@ -11,42 +11,69 @@ package reversetictactoefin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 public class ReverseEngine {
+
     private static final char PLAYER = 'X';
     private static final char OPPONENT = 'O';
 
     public int makeMove(char[] board, String difficulty) {
         List<Integer> emptyCells = getEmptyCells(board);
 
-        // Easy Difficulty: Random Move
+        // Easy Difficulty: Random Move, Avoid Immediate Losing Move, Higher Probability of Random Move
         if (difficulty.equals("easy")) {
-            Random random = new Random();
-            return emptyCells.get(random.nextInt(emptyCells.size()));
-        }
-
-        // Medium Difficulty: Slightly Optimal Move
-        if (difficulty.equals("medium")) {
+            // Check for an immediate losing move for the opponent
             for (int cell : emptyCells) {
-                board[cell] = PLAYER;
-                if (checkWin(board, PLAYER)) {
+                board[cell] = OPPONENT;
+                if (checkLoss(board, OPPONENT)) {
                     board[cell] = ' ';
-                    return cell;
+                    continue;
                 }
                 board[cell] = ' ';
+                return cell;
             }
+
+            // No immediate losing move found, choose a random move with higher probability
+            Random random = new Random();
+            int randomIndex = random.nextInt(emptyCells.size());
+
+            // Increase the chance of a random move by adding more random indexes
+            int totalIndexes = emptyCells.size();
+            if (totalIndexes > 1 && random.nextInt(10) < 8) {
+                // Generate another random index and choose the one with higher probability
+                int secondRandomIndex = random.nextInt(emptyCells.size());
+                randomIndex = random.nextInt(10) < 8 ? randomIndex : secondRandomIndex;
+            }
+
+            return emptyCells.get(randomIndex);
+        }
+
+        // Medium Difficulty: Random Move, Avoid Immediate Losing Move
+        if (difficulty.equals("medium")) {
+            // Check for an immediate losing move for the opponent
+            for (int cell : emptyCells) {
+                board[cell] = OPPONENT;
+                if (checkLoss(board, OPPONENT)) {
+                    board[cell] = ' ';
+                    continue;
+                }
+                board[cell] = ' ';
+                return cell;
+            }
+
+            // Choose a random move
             Random random = new Random();
             return emptyCells.get(random.nextInt(emptyCells.size()));
         }
 
-        // Hard Difficulty: Mostly Optimal Move
+        // Hard Difficulty: Avoid Immediate Losing Move, Optimal Move
         if (difficulty.equals("hard")) {
-            int bestMove = -1;
-            int bestScore = Integer.MIN_VALUE;
+            int bestMove = -1; //Initialize bestMove variable to -1 
+            int bestScore = Integer.MIN_VALUE; //bestScore variable to the lowest possible value (Integer.MIN_VALUE)
 
             for (int cell : emptyCells) {
-                board[cell] = PLAYER;
-                int score = minimax(board,0, false);
+                board[cell] = OPPONENT;
+                // Evaluate the board using minimax algorithm to get a score
+                int score = minimax(board, 0, false);
                 board[cell] = ' ';
 
                 if (score > bestScore) {
@@ -61,11 +88,42 @@ public class ReverseEngine {
         return -1;
     }
 
+    private boolean checkLoss(char[] board, char player) {
+        // Check rows
+        for (int i = 0; i < 3; i++) {
+            if (board[i * 3] == player && board[i * 3 + 1] == player && board[i * 3 + 2] == player) {
+                return true;
+            }
+        }
+
+        // Check columns
+        for (int i = 0; i < 3; i++) {
+            if (board[i] == player && board[i + 3] == player && board[i + 6] == player) {
+                return true;
+            }
+        }
+
+        // Check diagonals
+        if (board[0] == player && board[4] == player && board[8] == player) {
+            return true;
+        }
+
+        if (board[2] == player && board[4] == player && board[6] == player) {
+            return true;
+        }
+
+        return false;
+    }
+
     private int minimax(char[] board, int depth, boolean isMaximizing) {
-        if (checkWin(board,PLAYER)) {
-            return 10 - depth;
-        } else if (checkWin(board,OPPONENT)) {
+        // Base cases: check for wins or a full board
+
+       // If AI player wins, return a high score with depth penalty
+        if (checkWin(board, PLAYER)) {
             return depth - 10;
+       // If opponent wins, return a low score with depth penalty
+        } else if (checkWin(board, OPPONENT)) {
+            return 10 - depth;
         } else if (isBoardFull(board)) {
             return 0;
         }
@@ -79,6 +137,11 @@ public class ReverseEngine {
                 board[cell] = ' ';
 
                 bestScore = Math.max(score, bestScore);
+
+                // Additional check to avoid immediate losing move
+                if (bestScore == -10) {
+                    break;
+                }
             }
 
             return bestScore;
@@ -91,6 +154,11 @@ public class ReverseEngine {
                 board[cell] = ' ';
 
                 bestScore = Math.min(score, bestScore);
+
+                // Additional check to avoid immediate losing move
+                if (bestScore == 10) {
+                    break;
+                }
             }
 
             return bestScore;
@@ -100,7 +168,7 @@ public class ReverseEngine {
     private List<Integer> getEmptyCells(char[] board) {
         List<Integer> emptyCells = new ArrayList<>();
 
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < board.length; i++) {
             if (board[i] == ' ') {
                 emptyCells.add(i);
             }
@@ -109,10 +177,10 @@ public class ReverseEngine {
         return emptyCells;
     }
 
-    private boolean checkWin(char[] board,char player) {
+    private boolean checkWin(char[] board, char player) {
         // Check rows
-        for (int i = 0; i < 9; i += 3) {
-            if (board[i] == player && board[i + 1] == player && board[i + 2] == player) {
+        for (int i = 0; i < 3; i++) {
+            if (board[i * 3] == player && board[i * 3 + 1] == player && board[i * 3 + 2] == player) {
                 return true;
             }
         }
@@ -146,3 +214,4 @@ public class ReverseEngine {
         return true;
     }
 }
+
