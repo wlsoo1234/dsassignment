@@ -9,6 +9,7 @@ package reversetictactoefin;
  * @author husna
  */
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 public class ReverseEngine {
@@ -19,79 +20,83 @@ public class ReverseEngine {
     public int makeMove(char[] board, String difficulty) {
         List<Integer> emptyCells = getEmptyCells(board);
 
-      // Easy Difficulty: Random Move
-    if (difficulty.equals("easy")) {
-        // Choose a random move
-        Random random = new Random();
-        int randomIndex = random.nextInt(emptyCells.size());
-        return emptyCells.get(randomIndex);
-    }
-        // Medium Difficulty: Random Move, Avoid Immediate Losing Move
-        if (difficulty.equals("medium")) {
-            // Check for an immediate losing move for the opponent
-            for (int cell : emptyCells) {
-                board[cell] = OPPONENT;
-                if (checkLoss(board, OPPONENT)) {
-                    board[cell] = ' ';
-                    continue;
-                }
-                board[cell] = ' ';
-                return cell;
-            }
-
-            // Choose a random move
-            Random random = new Random();
-            return emptyCells.get(random.nextInt(emptyCells.size()));
-        }
-
-        // Hard Difficulty: Avoid Immediate Losing Move, Optimal Move
+        // Hard Difficulty: All Perfect Moves (1st ranked moves)
         if (difficulty.equals("hard")) {
-            int bestMove = -1; //Initialize bestMove variable to -1 
-            int bestScore = Integer.MIN_VALUE; //bestScore variable to the lowest possible value (Integer.MIN_VALUE)
-
-            for (int cell : emptyCells) {
-                board[cell] = OPPONENT;
-                // Evaluate the board using minimax algorithm to get a score
-                int score = minimax(board, 0, false);
-                board[cell] = ' ';
-
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestMove = cell;
-                }
-            }
-
-            return bestMove;
+            return getRankedMove(board, emptyCells, 1, emptyCells.size());
         }
 
-        return -1;
+        // Medium Difficulty: 70% 1st ranked moves, 30% 2nd ranked moves
+        if (difficulty.equals("medium")) {
+            int numFirstRankedMoves = (int) (emptyCells.size() * 0.7);
+            int numSecondRankedMoves = emptyCells.size() - numFirstRankedMoves;
+
+            int firstRankedMove = getRankedMove(board, emptyCells, 1, numFirstRankedMoves);
+            int secondRankedMove = getRankedMove(board, emptyCells, 2, numSecondRankedMoves);
+
+            Random random = new Random();
+            int randomValue = random.nextInt(10); // Random value between 0 and 9
+
+            // 70% chance of selecting a 1st ranked move, 30% chance of selecting a 2nd ranked move
+            if (randomValue < 7) {
+                return firstRankedMove;
+            } else {
+                return secondRankedMove;
+            }
+        }
+
+        // Easy Difficulty: 30% 1st ranked moves, 70% 2nd ranked moves
+        if (difficulty.equals("easy")) {
+            int numFirstRankedMoves = (int) (emptyCells.size() * 0.3);
+            int numSecondRankedMoves = emptyCells.size() - numFirstRankedMoves;
+
+            int firstRankedMove = getRankedMove(board, emptyCells, 1, numFirstRankedMoves);
+            int secondRankedMove = getRankedMove(board, emptyCells, 2, numSecondRankedMoves);
+
+            Random random = new Random();
+            int randomValue = random.nextInt(10); // Random value between 0 and 9
+
+            // 30% chance of selecting a 1st ranked move, 70% chance of selecting a 2nd ranked move
+            if (randomValue < 3) {
+                return firstRankedMove;
+            } else {
+                return secondRankedMove;
+            }
+        }
+
+        return -1; // Invalid difficulty
     }
-    private boolean checkLoss(char[] board, char player) {
-        // Check rows
-        for (int i = 0; i < 3; i++) {
-            if (board[i * 3] == player && board[i * 3 + 1] == player && board[i * 3 + 2] == player) {
-                return true;
+
+    private int getRankedMove(char[] board, List<Integer> emptyCells, int rank, int numMoves) {
+        List<Integer> rankedMoves = new ArrayList<>();
+
+        for (int cell : emptyCells) {
+            board[cell] = OPPONENT;
+            int score = minimax(board, 0, false);
+            board[cell] = ' ';
+
+            if (score == rank) {
+                rankedMoves.add(cell);
+            }
+
+            if (rankedMoves.size() == numMoves) {
+                break;
             }
         }
 
-        // Check columns
-        for (int i = 0; i < 3; i++) {
-            if (board[i] == player && board[i + 3] == player && board[i + 6] == player) {
-                return true;
-            }
+        if (!rankedMoves.isEmpty()) {
+            // Choose a random move from the ranked moves
+            Random random = new Random();
+            int randomIndex = random.nextInt(rankedMoves.size());
+            return rankedMoves.get(randomIndex);
         }
 
-        // Check diagonals
-        if (board[0] == player && board[4] == player && board[8] == player) {
-            return true;
-        }
-
-        if (board[2] == player && board[4] == player && board[6] == player) {
-            return true;
-        }
-
-        return false;
+        // If no ranked moves available, select a random move
+        Random random = new Random();
+        return emptyCells.get(random.nextInt(emptyCells.size()));
     }
+
+   
+
 
     private int minimax(char[] board, int depth, boolean isMaximizing) {
         // Base cases: check for wins or a full board
@@ -191,5 +196,5 @@ public class ReverseEngine {
 
         return true;
     }
-}
 
+}
