@@ -9,7 +9,8 @@ public class MapSolver {
         // Assuming you have loaded your 2D arrays into a list.
         List<int[][]> images = new ArrayList<>();
 
-        int[][] map1 = { { 0, 0, 2, 0, 0, 0, 1, 1, 1, 1 },
+        int[][] map1 = { 
+                { 0, 0, 2, 0, 0, 0, 1, 1, 1, 1 },
                 { 0, 1, 0, 1, 1, 0, 0, 0, 1, 1 },
                 { 0, 1, 0, 1, 1, 0, 1, 0, 1, 1 },
                 { 0, 1, 0, 1, 1, 0, 0, 2, 0, 1 },

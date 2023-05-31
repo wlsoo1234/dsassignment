@@ -13,12 +13,12 @@ public class ImageProcessor1 {
     private static final int MAP_COLS = 10;
 
     public static void main(String[] args) {
-        String folderPath = "C:/Users/Mouawia/Downloads/WIA1002 DATA STRUCTURE/Lab/Pieces of Map/";
+        String folderPath = "Pixel Map/Pieces of Map/";
 
         // Load images and extract pixel maps
         List<int[][]> pixelMaps = new ArrayList<>();
         for (int i = 1; i <= 4; i++) {
-            String imagePath = folderPath + "image" + i + ".png";
+            String imagePath = folderPath + "image " + i + ".png";
             BufferedImage image = readImage(imagePath);
             int[][] pixelMap = extractPixelMap(image);
             pixelMaps.add(pixelMap);

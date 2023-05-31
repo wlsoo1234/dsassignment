@@ -5,12 +5,12 @@ import java.io.IOException;
 
 public class ImageProcessor {
     public static void main(String[] args) {
-        String folderPath = "C:/Users/Mouawia/Downloads/WIA1002 DATA STRUCTURE/Lab/Pieces of Map/";
+        String folderPath = "Pixel Map/Pieces of Map/";
 
         // Load images and extract pixel maps
         int[][][] pixelMaps = new int[4][20][10];
         for (int i = 1; i <= 4; i++) {
-            String imagePath = folderPath + "image" + i + ".png";
+            String imagePath = folderPath + "image " + i + ".png";
             BufferedImage image = readImage(imagePath);
             int[][] pixelMap = extractPixelMap(image);
             pixelMaps[i - 1] = pixelMap;
